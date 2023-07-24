@@ -3,7 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const userRouter = require("./routes/users");
-const cardRouter = require("./routes/cards");
+const movieRouter = require("./routes/movies");
 const helmet = require("helmet");
 const { login, createUsers } = require("./controllers/users");
 const auth = require('./middlewares/auth');
@@ -16,8 +16,7 @@ const { PORT = 3000,
 MONGO_URL = 'mongodb://localhost:27017'
 } = process.env;
 mongoose
-  //использовал .connect("mongodb://0.0.0.0:27017/mestodb", с loсalhost не было ответа от сервера
-  .connect(`${MONGO_URL}/mestodb`, {
+  .connect(`${MONGO_URL}/bitfilmsdb`, {
     useNewUrlParser: true,
   })
   .then(() => {
@@ -70,13 +69,11 @@ app.post('/signup', celebrate({
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
     name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().regex(/^(https?:\/\/)?([\w-]{1,32}\.[\w-]{1,32})[^\s@]*/)
   }),
 }), createUsers);
 app.use(auth);
 app.use("/", userRouter);
-app.use("/", cardRouter);
+app.use("/", movieRouter);
 app.use("*", (req, res, next) => {
    next(new UserNotFound('Такого роута нет'));
    return
