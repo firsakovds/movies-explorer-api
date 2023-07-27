@@ -2,15 +2,15 @@ require('dotenv').config();
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const userRouter = require("./routes/users");
-const movieRouter = require("./routes/movies");
+
 const helmet = require("helmet");
-const { login, createUsers } = require("./controllers/users");
-const auth = require('./middlewares/auth');
-const { celebrate, Joi, errors } = require('celebrate');
-const UserNotFound = require("./errors/UserNotFound");
+const routes = require("./routes/index");
+
+const { errors } = require('celebrate');
+
 const cors = require('cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const rateLimit = require('express-rate-limit')
 // Слушаем 3000 порт
 const { PORT = 3000,
 MONGO_URL = 'mongodb://localhost:27017'
@@ -46,7 +46,13 @@ app.use((req, res, next) => {
   }
   return next();
 });
-
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 1000, // поставил 1000 для тестов Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
+app.use(limiter);
 app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -56,29 +62,8 @@ app.get('/crash-test', () => {
     throw new Error('Сервер сейчас упадёт');
   }, 0);
 });
-//4. Создайте роут для логина и регистрации
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-  }),
-}), login);
 
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-    name: Joi.string().min(2).max(30),
-  }),
-}), createUsers);
-app.use(auth);
-app.use("/", userRouter);
-app.use("/", movieRouter);
-app.use("*", (req, res, next) => {
-   next(new UserNotFound('Такого роута нет'));
-   return
-});
-
+app.use(routes);
 app.use(errorLogger); // подключаем логгер ошибок
 app.use(errors()); // обработчик ошибок celebrate
 app.use((err, req, res, next) => {
