@@ -11,7 +11,7 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 const limiter = require("./middlewares/rateLimit")
 // Слушаем 3000 порт
 const { PORT = 3000,
-  MONGO_URL = 'mongodb://localhost:27017'
+  MONGO_URL
 } = process.env;
 mongoose
   .connect(`${MONGO_URL}/bitfilmsdb`, {
