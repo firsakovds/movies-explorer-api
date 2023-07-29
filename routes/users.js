@@ -1,6 +1,5 @@
 const router = require("express").Router();
-const { celebrate, Joi } = require("celebrate");
-const {validateUpdateUser} = require("../middlewares/validate")
+const { validateUpdateUser } = require("../middlewares/validate")
 const {
   updateUser,
   getCurrentUser,

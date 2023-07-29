@@ -9,7 +9,7 @@ const UnauthorizedError = require('../errors/UnauthorizedError');
 const { NODE_ENV, JWT_SECRET } = process.env;
 //создать юзера 2. Доработайте контроллер createUser
 module.exports.createUsers = (req, res, next) => {
-  const { name, email, password} = req.body;
+  const { name, email, password } = req.body;
 
   bcrypt.hash(password, 10)
     .then((hash) => {
@@ -59,11 +59,11 @@ module.exports.login = (req, res, next) => {
 
 //обновим профиль
 module.exports.updateUser = (req, res, next) => {
-  const { name, email} = req.body;
+  const { name, email } = req.body;
 
   return User.findByIdAndUpdate(
     req.user._id,
-    { name, email},
+    { name, email },
     { new: true, runValidators: true }
   )
     .then((user) => {
