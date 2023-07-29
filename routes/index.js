@@ -9,11 +9,12 @@ const { validateLogin, validateCreateUsers } = require("../middlewares/validate"
 router.post('/signin', validateLogin, login);
 
 router.post('/signup', validateCreateUsers, createUsers);
-router.get('/crash-test', () => {
+//создал вм с нуля, проверил краш тест, перезапуск работает
+/*router.get('/crash-test', () => {
   setTimeout(() => {
     throw new Error('Сервер сейчас упадёт');
   }, 0);
-});
+});*/
 router.use(auth);
 router.use("/", userRouter);
 router.use("/", movieRouter);
